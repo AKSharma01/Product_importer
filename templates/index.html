@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Product</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/custom.css')}}">
+</head>
+<body>
+	<div class="container-fluid pro-container" id="root">
+		<div class="card pro-card" >
+			<div class="row head-nav" >
+				<ul class="nav col-2">
+					<li class="nav-item">
+						<a class="nav-link pro-nav" href="/"><h4>PRODUCT IMPORTER</h4></a>
+					</li>
+				</ul>
+				<ul class="nav col-10" >
+					<div class="row">
+						<div class="col-6">
+							<div class="row">
+								<div class="custom-file row" style="margin-left: 15px; ">
+									<input type="file" class="custom-file-input col-6" id="upload">
+									<label class="custom-file-label col-6" id="upload-label" for="customFile"></label>
+									<button class="btn btn-outline-secondary" type="button" onclick="upload()">Upload</button>
+								</div>
+							</div>
+							<div class="row" style="margin-top: 3px;">
+								
+								<div class="custom-file row" style="margin-left: 15px; ">
+									<form class="form-inline my-2 my-lg-0">
+										<input class="form-control mr-sm-2" type="search" placeholder="Enter url" aria-label="Search" id="searchURL">
+										<button class="btn btn-outline-secondary" type="button" onclick="searchByURL()">Upload</button>
+									</form>
+								</div>
+							</div>
+						</div>
+						<div class="col-6">
+							<form class="form-inline ">
+								<input class="form-control mr-sm-2" type="search" placeholder="Name or SKU" aria-label="Search" id="search">
+								<button class="btn btn-outline-success my-2 my-sm-0" type="submit" onclick="searchByKey()">Search</button>
+							</form>
+						</div>
+					</div>
+				</ul>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-2">
+				<li class='list-group-item' onclick="active() "><a href="#active">Active</a></li>
+				<li class='list-group-item' onclick="archive()"><a href="#archive">Archived</a></li>
+			</div>
+			<div class="col">
+			<div id="headerValue" style="font-size: 24px;"></div>
+				
+				<div id="result">
+					
+				</div>
+			</div>
+			
+		</div>
+		
+	</div>
+</body>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+	<script type="text/javascript">		
+		function active() {
+			$.ajax({
+				url: "/products?is_active=true",
+				method: "get"
+			}).done(function(msg){
+				var template = [];
+				$('#result').empty();
+				for(var i =0 ; i< msg.length; i++){
+					template.push("<li class='list-group-item'>"+String(i+1)+". <b>Name: </b>"+msg[i].name+"<b><br/> &nbsp;&nbsp;&nbsp; SKU: </b>"+msg[i].sku+"<br/><b> &nbsp;&nbsp;&nbsp; Description: </b>"+msg[i].description+"<br/><b> &nbsp;&nbsp;&nbsp; Created At: </b>"+msg[i].created_at+"</li>");
+				}
+				$("#headerValue").text("Active Products ("+msg.length+")");
+				$('#result').append(template);
+			});
+		}
+		function archive() {
+			$.ajax({
+				url: "/products?is_archived=true",
+				method: "get"
+			}).done(function(msg){
+				var template = [];
+				$('#result').empty();
+				for(var i =0 ; i< msg.length; i++){
+					template.push("<li class='list-group-item'>"+String(i+1)+". <b>Name: </b>"+msg[i].name+"<b><br/> &nbsp;&nbsp;&nbsp; SKU: </b>"+msg[i].sku+"<br/><b> &nbsp;&nbsp;&nbsp; Description: </b>"+msg[i].description+"<br/><b> &nbsp;&nbsp;&nbsp; Created At: </b>"+msg[i].created_at+"</li>");
+				}
+				$("#headerValue").text("Archive Products ("+msg.length+")");
+				$('#result').append(template);
+			});
+		}
+		function upload() {
+			var formData = new FormData();
+			formData.append('file', $('#upload')[0].files[0]);
+			$.ajax({
+				url : '/products/import',
+				type : 'POST',
+				data : formData,
+				processData: false,
+				contentType: false,
+				enctype: 'multipart/form-data'
+			});
+		}
+		
+		function searchByURL(){
+			var formData = {
+				url: $("#searchURL").val()
+			};
+			// console.log("formData: ", formData);
+			$.ajax({
+				url : '/products/import',
+				type : 'POST',
+				data : (formData)		       
+			});
+		}
+
+		function searchByKey(){
+			var searchValue = $("#search").val();
+			var type = $("#headerValue").text();
+			var url = "?";
+			if(type == "Archive")
+				url = url+"is_archived=true";
+			else
+				url = url+"is_active=true";
+			url = url+"&search="+searchValue;
+			$.ajax({
+				url: "/products"+url,
+				method: "get"
+			}).done(function(msg){
+				var template = [];
+				$('#result').empty();
+				for(var i =0 ; i< msg.length; i++){
+					template.push("<li class='list-group-item'>"+String(i+1)+". <b>Name: </b>"+msg[i].name+"<b><br/> &nbsp;&nbsp;&nbsp; SKU: </b>"+msg[i].sku+"<br/><b> &nbsp;&nbsp;&nbsp; Description: </b>"+msg[i].description+"<br/><b> &nbsp;&nbsp;&nbsp; Created At: </b>"+msg[i].created_at+"</li>");
+				}
+				$("#headerValue").text("Search Products ("+msg.length+")");
+				$('#result').append(template);
+			});
+		}
+		active();
+	</script>
+</html>

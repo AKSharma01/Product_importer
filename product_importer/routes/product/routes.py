@@ -1,6 +1,6 @@
 from product_importer.controllers.product_controller import ProductController
 from product_importer.controllers.base_controller import BaseController
-from flask import Flask , Blueprint , request ,jsonify
+from flask import Flask , Blueprint , request ,jsonify, render_template
 from product_importer.transformer.product_transformer import transform
 from product_importer.exceptions.custom_exception import CustomException
 
@@ -8,17 +8,22 @@ app = Flask(__name__)
 product = Blueprint('product' , __name__ , url_prefix='/products')
 
 
-@product.route('/' , methods =['POST'])
-def store():
+@product.route('/import' , methods =['POST'])
+def upload_products():
 	result = ProductController().upload_products(request)
 	if result:
-		return transform(result)
+		return jsonify([])
+		# return render_template('index.html', result = [])
+		# return transform(result)
 	
-# @lead.route('/<leadId>', methods=['GET'])
-# def getLeadById(leadId):
-# 	result = LeadController().get_lead_by_id(leadId)
-# 	if result:
-# 		return transform(result)
+@product.route('/', methods=['GET'])
+def product_filter():
+	result = ProductController().product_filter(request)
+	print(result)
+	# return render_template('index.html', result = result)
+	# return transform(result)
+	return jsonify(result)
+
 # @lead.route('/<leadId>', methods=['DELETE'])
 # def deleteLeadById(leadId):
 # 	result = LeadController().delete_lead_by_id(leadId)

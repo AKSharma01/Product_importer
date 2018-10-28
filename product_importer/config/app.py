@@ -7,8 +7,7 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-from product_importer.models.product import Product
-
+# from product_importer.models.product import Product
 if __name__ == '__main__':
     app.run()
 
