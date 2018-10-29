@@ -6,7 +6,10 @@
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/custom.css')}}">
 </head>
 <body>
-	<div class="container-fluid pro-container" id="root">
+	<div class="loader">
+		<img src="/static/gif/loader.gif"/>
+	</div>
+	<div class="container-fluid pro-container">
 		<div class="card pro-card" >
 			<div class="row head-nav" >
 				<ul class="nav col-2">
@@ -21,7 +24,7 @@
 								<div class="custom-file row" style="margin-left: 15px; ">
 									<input type="file" class="custom-file-input col-6" id="upload">
 									<label class="custom-file-label col-6" id="upload-label" for="customFile"></label>
-									<button class="btn btn-outline-secondary" type="button" onclick="upload()">Upload</button>
+									<button class="btn btn-outline-secondary file-upload-botton" type="button" onclick="upload()">Upload</button>
 								</div>
 							</div>
 							<div class="row" style="margin-top: 3px;">
@@ -64,19 +67,28 @@
 </body>
 	<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
 	<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
-	<script type="text/javascript">		
+	<script type="text/javascript">
+
+
+		$('.file-upload-botton').click(function () {
+			$('.loader').show();
+		});	
 		function active() {
 			$.ajax({
 				url: "/products?is_active=true",
-				method: "get"
-			}).done(function(msg){
-				var template = [];
-				$('#result').empty();
-				for(var i =0 ; i< msg.length; i++){
-					template.push("<li class='list-group-item'>"+String(i+1)+". <b>Name: </b>"+msg[i].name+"<b><br/> &nbsp;&nbsp;&nbsp; SKU: </b>"+msg[i].sku+"<br/><b> &nbsp;&nbsp;&nbsp; Description: </b>"+msg[i].description+"<br/><b> &nbsp;&nbsp;&nbsp; Created At: </b>"+msg[i].created_at+"</li>");
+				method: "get",
+				success: function(msg){
+					var template = [];
+					$('#result').empty();
+					for(var i =0 ; i< msg.length; i++){
+						template.push("<li class='list-group-item'>"+String(i+1)+". <b>Name: </b>"+msg[i].name+"<b><br/> &nbsp;&nbsp;&nbsp; SKU: </b>"+msg[i].sku+"<br/><b> &nbsp;&nbsp;&nbsp; Description: </b>"+msg[i].description+"<br/><b> &nbsp;&nbsp;&nbsp; Created At: </b>"+msg[i].created_at+"</li>");
+					}
+					$("#headerValue").text("Active Products ("+msg.length+")");
+					$('#result').append(template);
+				},
+				error: function(failure){
+					console.log("failure: ", failure);
 				}
-				$("#headerValue").text("Active Products ("+msg.length+")");
-				$('#result').append(template);
 			});
 		}
 		function archive() {
@@ -102,7 +114,13 @@
 				data : formData,
 				processData: false,
 				contentType: false,
-				enctype: 'multipart/form-data'
+				enctype: 'multipart/form-data',
+				success: function(successMsg){
+					$('.loader').hide();
+				},
+				error: function(errorMsg){
+					$('.loader').hide();
+				}
 			});
 		}
 		
